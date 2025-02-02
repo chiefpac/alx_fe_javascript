@@ -1,5 +1,27 @@
-document.getElementById("quoteDisplay");
-newQuoteButton = document.getElementById("newQuote");
+document.addEventListener("DOMContentLoaded", function () {
+  // Create quote display container
+  const quoteDisplay = document.createElement("div");
+  quoteDisplay.id = "quoteDisplay";
+  document.body.appendChild(quoteDisplay);
+
+  // Create "Show Random Quote" button
+  const newQuoteButton = document.createElement("button");
+  newQuoteButton.id = "newQuote";
+  newQuoteButton.textContent = "Show Random Quote";
+  newQuoteButton.addEventListener("click", showRandomQuote);
+  document.body.appendChild(newQuoteButton);
+
+  // Create a container for the "Add Quote" form
+  const formContainer = document.createElement("div");
+  formContainer.id = "formContainer";
+  document.body.appendChild(formContainer);
+
+  // Call function to create the "Add Quote" form
+  createAddQuoteForm();
+
+  // Show an initial random quote
+  showRandomQuote();
+});
 
 // Array to store quote objects
 let quotes = [
@@ -47,42 +69,25 @@ function createAddQuoteForm() {
             </form>
         `;
 
-    // Add event listener to the form
+    // Add event listener to handle quote submission
     const addQuoteForm = document.getElementById("addQuoteForm");
-    if (addQuoteForm) {
-      addQuoteForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const quoteText = document.getElementById("quoteText").value;
-        const quoteCategory = document.getElementById("quoteCategory").value;
+    addQuoteForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const quoteText = document.getElementById("quoteText").value;
+      const quoteCategory = document.getElementById("quoteCategory").value;
 
-        if (quoteText && quoteCategory) {
-          // Add the new quote to the array
-          quotes.push({ text: quoteText, category: quoteCategory });
+      if (quoteText && quoteCategory) {
+        // Add the new quote to the array
+        quotes.push({ text: quoteText, category: quoteCategory });
 
-          // Clear the form
-          addQuoteForm.reset();
+        // Clear the form
+        addQuoteForm.reset();
 
-          // Show a success message
-          alert("Quote added successfully!");
-        } else {
-          alert("Please fill out both fields.");
-        }
-      });
-    }
+        // Show a success message
+        alert("Quote added successfully!");
+      } else {
+        alert("Please fill out both fields.");
+      }
+    });
   }
-}
-
-// Function to initialize the application
-function init() {
-  // Create a container for the random quote display
-  const quoteDisplay = document.createElement("div");
-  quoteDisplay.id = "quoteDisplay";
-  document.body.appendChild(quoteDisplay);
-
-  // Create a button to show a random quote
-  const randomQuoteBtn = document.createElement("button");
-  randomQuoteBtn.textContent = "Show Random Quote";
-  randomQuoteBtn.addEventListener("click", showRandomQuote);
-  document.body.appendChild(randomQuoteBtn);
-  // Create a container for the "Add Quote" form
 }
