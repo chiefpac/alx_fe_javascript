@@ -1,35 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Load quotes from local storage
   loadQuotes();
 
-  // Create quote display container
+  // Quote Display Section
   const quoteDisplay = document.createElement("div");
   quoteDisplay.id = "quoteDisplay";
   document.body.appendChild(quoteDisplay);
 
-  // Create "Show Random Quote" button
+  // Show Random Quote Button
   const newQuoteButton = document.createElement("button");
   newQuoteButton.id = "newQuote";
   newQuoteButton.textContent = "Show Random Quote";
   newQuoteButton.addEventListener("click", showRandomQuote);
   document.body.appendChild(newQuoteButton);
 
-  // Create a container for the "Add Quote" form
-  const formContainer = document.createElement("div");
-  formContainer.id = "formContainer";
-  document.body.appendChild(formContainer);
-
-  // Create JSON Import/Export Buttons
-  createJsonControls();
-
-  // Call function to create the "Add Quote" form
+  // Create Add Quote Form
   createAddQuoteForm();
 
-  // Show the last displayed quote from session storage
+  // Create Import & Export Controls
+  createJsonControls();
+
+  // Show last viewed quote from session storage
   showLastViewedQuote();
 });
 
-// Array to store quotes (defaults if no local storage)
+// Array of Quotes (Load from Local Storage)
 let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   {
     text: "The only limit to our realization of tomorrow is our doubts of today.",
@@ -45,7 +39,7 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   },
 ];
 
-// Function to display a random quote
+// Function to Show a Random Quote
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const randomQuote = quotes[randomIndex];
@@ -56,68 +50,11 @@ function showRandomQuote() {
       <p>"${randomQuote.text}"</p>
       <p><em>- ${randomQuote.category}</em></p>
     `;
-
-    // Store last viewed quote in session storage
     sessionStorage.setItem("lastQuote", JSON.stringify(randomQuote));
   }
 }
 
-// Function to create and display the "Add Quote" form
-function createAddQuoteForm() {
-  const formContainer = document.getElementById("formContainer");
-
-  if (formContainer) {
-    formContainer.innerHTML = `
-      <h3>Add a New Quote</h3>
-      <form id="addQuoteForm">
-        <label for="quoteText">Quote:</label>
-        <textarea id="quoteText" placeholder="Enter the quote" required></textarea>
-        <label for="quoteCategory">Category:</label>
-        <input type="text" id="quoteCategory" placeholder="Enter the category" required>
-        <button type="submit">Add Quote</button>
-      </form>
-    `;
-
-    // Add event listener to handle quote submission
-    document
-      .getElementById("addQuoteForm")
-      .addEventListener("submit", function (event) {
-        event.preventDefault();
-        const quoteText = document.getElementById("quoteText").value;
-        const quoteCategory = document.getElementById("quoteCategory").value;
-
-        if (quoteText && quoteCategory) {
-          // Add new quote to the array
-          quotes.push({ text: quoteText, category: quoteCategory });
-
-          // Save to local storage
-          saveQuotes();
-
-          // Clear the form
-          this.reset();
-
-          alert("Quote added successfully!");
-        } else {
-          alert("Please fill out both fields.");
-        }
-      });
-  }
-}
-
-// Function to save quotes to local storage
-function saveQuotes() {
-  localStorage.setItem("quotes", JSON.stringify(quotes));
-}
-
-// Function to load quotes from local storage
-function loadQuotes() {
-  const storedQuotes = localStorage.getItem("quotes");
-  if (storedQuotes) {
-    quotes = JSON.parse(storedQuotes);
-  }
-}
-
-// Function to show the last viewed quote from session storage
+// Function to Show Last Viewed Quote (From Session Storage)
 function showLastViewedQuote() {
   const lastQuote = JSON.parse(sessionStorage.getItem("lastQuote"));
   if (lastQuote) {
@@ -131,12 +68,62 @@ function showLastViewedQuote() {
   }
 }
 
-// Function to create JSON Import/Export controls
+// Function to Create and Display "Add Quote" Form
+function createAddQuoteForm() {
+  const formContainer = document.createElement("div");
+  formContainer.id = "formContainer";
+  document.body.appendChild(formContainer);
+
+  formContainer.innerHTML = `
+    <h3>Add a New Quote</h3>
+    <form id="addQuoteForm">
+      <label for="quoteText">Quote:</label>
+      <textarea id="quoteText" placeholder="Enter the quote" required></textarea>
+      <label for="quoteCategory">Category:</label>
+      <input type="text" id="quoteCategory" placeholder="Enter the category" required>
+      <button type="submit">Add Quote</button>
+    </form>
+  `;
+
+  document
+    .getElementById("addQuoteForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      const quoteText = document.getElementById("quoteText").value;
+      const quoteCategory = document.getElementById("quoteCategory").value;
+
+      if (quoteText && quoteCategory) {
+        quotes.push({ text: quoteText, category: quoteCategory });
+        saveQuotes();
+        this.reset();
+        alert("Quote added successfully!");
+      } else {
+        alert("Please fill out both fields.");
+      }
+    });
+}
+
+// Function to Save Quotes to Local Storage
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
+// Function to Load Quotes from Local Storage
+function loadQuotes() {
+  const storedQuotes = localStorage.getItem("quotes");
+  if (storedQuotes) {
+    quotes = JSON.parse(storedQuotes);
+  }
+}
+
+// Function to Create Import & Export Controls
 function createJsonControls() {
   const controlsContainer = document.createElement("div");
+  document.body.appendChild(controlsContainer);
 
   // Export Button
   const exportButton = document.createElement("button");
+  exportButton.id = "exportButton"; // Ensure the ID matches the check
   exportButton.textContent = "Export Quotes as JSON";
   exportButton.addEventListener("click", exportToJsonFile);
   controlsContainer.appendChild(exportButton);
@@ -144,15 +131,13 @@ function createJsonControls() {
   // Import File Input
   const importInput = document.createElement("input");
   importInput.type = "file";
-  importInput.id = "importFile";
+  importInput.id = "importFile"; // Ensure the ID matches the check
   importInput.accept = ".json";
   importInput.addEventListener("change", importFromJsonFile);
   controlsContainer.appendChild(importInput);
-
-  document.body.appendChild(controlsContainer);
 }
 
-// Function to export quotes to a JSON file
+// Function to Export Quotes to a JSON File
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -166,7 +151,7 @@ function exportToJsonFile() {
   document.body.removeChild(a);
 }
 
-// Function to import quotes from a JSON file
+// Function to Import Quotes from a JSON File
 function importFromJsonFile(event) {
   const file = event.target.files[0];
   if (!file) return;

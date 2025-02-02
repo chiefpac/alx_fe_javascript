@@ -7,8 +7,23 @@
   </head>
   <body>
     <h1>Dynamic Quote Generator</h1>
+
     <div id="quoteDisplay"></div>
     <button id="newQuote">Show New Quote</button>
-    <script src="./script.js"></script>
+
+    <div id="formContainer"></div>
+
+    <!-- Export Button -->
+    <button id="exportButton">Export Quotes</button>
+
+    <!-- Import File Input -->
+    <input
+      type="file"
+      id="importFile"
+      accept=".json"
+      onchange="importFromJsonFile(event)"
+    />
+
+    <script src="script.js"></script>
   </body>
 </html>
