@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("syncButton").addEventListener("click", manualSync);
   createAddQuoteForm();
 
-  setInterval(autoSync, 30000);
+  setInterval(autoSync, 30000); // Periodic auto sync every 30 seconds
 });
 
 let quotes = [];
@@ -48,8 +48,7 @@ async function performSync() {
   if (isSyncing) return;
   isSyncing = true;
   try {
-    const serverResponse = await fetch(API_URL);
-    const serverQuotes = await serverResponse.json();
+    const serverQuotes = await fetchQuotesFromServer();
 
     const conflicts = detectConflicts(quotes, serverQuotes);
     if (conflicts.length > 0) handleConflicts(conflicts, serverQuotes);
@@ -65,6 +64,40 @@ async function performSync() {
     showNotification(`Sync failed: ${error.message}`, "error");
   }
   isSyncing = false;
+}
+
+// Fetch quotes from the server
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error("Failed to fetch quotes from the server");
+    }
+    return await response.json();
+  } catch (error) {
+    showNotification(`Error fetching quotes: ${error.message}`, "error");
+    return [];
+  }
+}
+
+// Post quotes to the server (Mock POST request)
+async function postQuotesToServer(quotesToPost) {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(quotesToPost),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to post quotes to the server");
+    }
+    const postedQuotes = await response.json();
+    return postedQuotes;
+  } catch (error) {
+    showNotification(`Error posting quotes: ${error.message}`, "error");
+  }
 }
 
 function detectConflicts(local, server) {
