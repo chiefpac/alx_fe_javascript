@@ -70,6 +70,7 @@ async function syncQuotes() {
 
     pendingChanges = false;
     showNotification("Sync completed successfully", "success");
+    alert("Quotes synced with server!"); // Alert for successful sync
   } catch (error) {
     showNotification(`Sync failed: ${error.message}`, "error");
   }
