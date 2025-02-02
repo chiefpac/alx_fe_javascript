@@ -23,6 +23,9 @@
       accept=".json"
       onchange="importFromJsonFile(event)"
     />
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+    </select>
 
     <script src="script.js"></script>
   </body>
