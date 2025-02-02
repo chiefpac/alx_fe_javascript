@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("syncButton").addEventListener("click", manualSync);
   createAddQuoteForm();
 
-  setInterval(autoSync, 30000); // Periodic auto sync every 30 seconds
+  // Periodic auto-sync every 30 seconds to check for server data
+  setInterval(autoSync, 30000);
 });
 
 let quotes = [];
@@ -22,37 +23,46 @@ let isSyncing = false;
 let pendingChanges = false;
 const API_URL = "https://jsonplaceholder.typicode.com/posts"; // Mock API
 
+// Load quotes from local storage
 function loadQuotes() {
   const localData = localStorage.getItem("quotes");
   quotes = localData ? JSON.parse(localData) : [];
   migrateLegacyData();
 }
 
+// Save quotes to local storage
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
   pendingChanges = true;
 }
 
+// Manually trigger sync
 async function manualSync() {
   showNotification("Initiating manual sync...", "info");
-  await performSync();
+  await syncQuotes();
 }
 
+// Auto-sync function to check periodically
 async function autoSync() {
   if (!pendingChanges) return;
   showNotification("Auto-syncing changes...", "info");
-  await performSync();
+  await syncQuotes();
 }
 
-async function performSync() {
+// Main function to sync local data with server
+async function syncQuotes() {
   if (isSyncing) return;
   isSyncing = true;
+
   try {
     const serverQuotes = await fetchQuotesFromServer();
 
     const conflicts = detectConflicts(quotes, serverQuotes);
-    if (conflicts.length > 0) handleConflicts(conflicts, serverQuotes);
-    else quotes = mergeQuotes(quotes, serverQuotes);
+    if (conflicts.length > 0) {
+      handleConflicts(conflicts, serverQuotes);
+    } else {
+      quotes = mergeQuotes(quotes, serverQuotes);
+    }
 
     saveQuotes();
     populateCategories();
@@ -63,6 +73,7 @@ async function performSync() {
   } catch (error) {
     showNotification(`Sync failed: ${error.message}`, "error");
   }
+
   isSyncing = false;
 }
 
@@ -80,26 +91,7 @@ async function fetchQuotesFromServer() {
   }
 }
 
-// Post quotes to the server (Mock POST request)
-async function postQuotesToServer(quotesToPost) {
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(quotesToPost),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to post quotes to the server");
-    }
-    const postedQuotes = await response.json();
-    return postedQuotes;
-  } catch (error) {
-    showNotification(`Error posting quotes: ${error.message}`, "error");
-  }
-}
-
+// Detect conflicts between local and server data
 function detectConflicts(local, server) {
   return local.filter((localQuote) => {
     const serverQuote = server.find((sq) => sq.id === localQuote.id);
@@ -107,6 +99,7 @@ function detectConflicts(local, server) {
   });
 }
 
+// Merge server and local quotes
 function mergeQuotes(local, server) {
   const quoteMap = new Map();
   server.forEach((quote) => quoteMap.set(quote.id, quote));
@@ -119,6 +112,7 @@ function mergeQuotes(local, server) {
   return Array.from(quoteMap.values());
 }
 
+// Handle conflicts between server and local data
 function handleConflicts(conflicts, serverQuotes) {
   const resolution = window.confirm(
     `${conflicts.length} conflict(s) detected!\nKeep local changes? (OK for yes, Cancel for server version)`
@@ -133,11 +127,13 @@ function handleConflicts(conflicts, serverQuotes) {
   saveQuotes();
 }
 
+// Initialize sync UI status
 function initializeSyncUI() {
   const statusDiv = document.getElementById("syncStatus");
   statusDiv.textContent = "Ready to sync";
 }
 
+// Show notifications for syncing, errors, or conflicts
 function showNotification(message, type = "info") {
   const statusDiv = document.getElementById("syncStatus");
   statusDiv.textContent = message;
@@ -145,6 +141,7 @@ function showNotification(message, type = "info") {
   setTimeout(() => (statusDiv.textContent = ""), 3000);
 }
 
+// Migrate legacy data (if needed)
 function migrateLegacyData() {
   quotes = quotes.map((quote) => ({
     ...quote,
@@ -155,6 +152,7 @@ function migrateLegacyData() {
   saveQuotes();
 }
 
+// Add a new quote
 function addQuote() {
   const text = document.getElementById("quoteText").value.trim();
   const category = document.getElementById("quoteCategory").value.trim();
@@ -172,6 +170,7 @@ function addQuote() {
   }
 }
 
+// Restore the last filter selection
 function restoreLastFilter() {
   const lastFilter = localStorage.getItem("categoryFilter");
   if (lastFilter) {
@@ -180,6 +179,7 @@ function restoreLastFilter() {
   }
 }
 
+// Filter quotes based on category selection
 function filterQuotes() {
   const categoryFilter = document.getElementById("categoryFilter").value;
   const filteredQuotes =
@@ -196,6 +196,7 @@ function filterQuotes() {
   localStorage.setItem("categoryFilter", categoryFilter);
 }
 
+// Populate the category filter dropdown
 function populateCategories() {
   const categories = new Set(quotes.map((quote) => quote.category));
   const categoryFilter = document.getElementById("categoryFilter");
