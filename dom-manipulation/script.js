@@ -91,6 +91,29 @@ async function fetchQuotesFromServer() {
   }
 }
 
+// Post a new quote to the server (mock API)
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST", // Use POST method to send data
+      headers: {
+        "Content-Type": "application/json", // Specify content type as JSON
+      },
+      body: JSON.stringify(quote), // Convert the quote object into JSON
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to post quote to the server");
+    }
+
+    const newQuote = await response.json();
+    return newQuote; // Return the newly created quote with ID
+  } catch (error) {
+    showNotification(`Error posting quote: ${error.message}`, "error");
+    return null;
+  }
+}
+
 // Detect conflicts between local and server data
 function detectConflicts(local, server) {
   return local.filter((localQuote) => {
@@ -153,20 +176,28 @@ function migrateLegacyData() {
 }
 
 // Add a new quote
-function addQuote() {
+async function addQuote() {
   const text = document.getElementById("quoteText").value.trim();
   const category = document.getElementById("quoteCategory").value.trim();
   if (text && category) {
-    quotes.push({
+    const newQuote = {
       id: Date.now().toString(),
       text: text,
       category: category,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
-    saveQuotes();
-    populateCategories();
-    filterQuotes();
+    };
+
+    // Post the new quote to the server
+    const postedQuote = await postQuoteToServer(newQuote);
+
+    if (postedQuote) {
+      // If the posting is successful, add the server's response (including ID) to local storage
+      quotes.push(postedQuote);
+      saveQuotes();
+      populateCategories();
+      filterQuotes();
+    }
   }
 }
 
