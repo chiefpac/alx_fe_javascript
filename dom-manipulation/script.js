@@ -78,6 +78,28 @@ function fetchQuotesFromServer() {
     });
 }
 
+// New function to POST data to the server
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST", // Specify the method as POST
+      headers: {
+        "Content-Type": "application/json", // Specify the content type
+      },
+      body: JSON.stringify(quote), // Convert the quote object to JSON format
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to post quote to server");
+    }
+
+    const serverResponse = await response.json();
+    return serverResponse; // Return the response from the server
+  } catch (error) {
+    throw new Error("Error posting quote to server: " + error.message);
+  }
+}
+
 function detectConflicts(local, server) {
   return local.filter((localQuote) => {
     const serverQuote = server.find((sq) => sq.id === localQuote.id);
@@ -146,16 +168,27 @@ function addQuote() {
   const text = document.getElementById("quoteText").value.trim();
   const category = document.getElementById("quoteCategory").value.trim();
   if (text && category) {
-    quotes.push({
+    const newQuote = {
       id: Date.now().toString(),
       text: text,
       category: category,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
+    };
+
+    quotes.push(newQuote);
     saveQuotes();
     populateCategories();
     filterQuotes();
+
+    // Post the new quote to the server as well
+    postQuoteToServer(newQuote)
+      .then((serverResponse) => {
+        console.log("Quote posted successfully to server", serverResponse);
+      })
+      .catch((error) => {
+        console.error("Error posting quote to server:", error);
+      });
   }
 }
 
