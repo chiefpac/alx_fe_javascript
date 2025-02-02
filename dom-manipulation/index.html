@@ -3,29 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
     <title>Dynamic Quote Generator</title>
   </head>
   <body>
+    <!-- Sync UI -->
+    <div id="sync-container">
+      <button id="syncButton" class="sync-btn">🔄 Sync Now</button>
+      <div id="syncStatus" class="sync-status"></div>
+    </div>
+
     <h1>Dynamic Quote Generator</h1>
 
+    <!-- Main Quote Display -->
     <div id="quoteDisplay"></div>
-    <button id="newQuote">Show New Quote</button>
 
-    <div id="formContainer"></div>
+    <!-- Controls Section -->
+    <div class="controls">
+      <div class="filter-section">
+        <select id="categoryFilter" onchange="filterQuotes()">
+          <option value="all">All Categories</option>
+        </select>
+        <button id="newQuote" class="sync-btn">🎲 New Random Quote</button>
+      </div>
 
-    <!-- Export Button -->
-    <button id="exportButton">Export Quotes</button>
+      <!-- Add Quote Form -->
+      <div class="quote-form">
+        <input type="text" id="quoteText" placeholder="Enter new quote" />
+        <input type="text" id="quoteCategory" placeholder="Enter category" />
+        <button onclick="addQuote()">➕ Add Quote</button>
+      </div>
+    </div>
 
-    <!-- Import File Input -->
-    <input
-      type="file"
-      id="importFile"
-      accept=".json"
-      onchange="importFromJsonFile(event)"
-    />
-    <select id="categoryFilter" onchange="filterQuotes()">
-      <option value="all">All Categories</option>
-    </select>
+    <!-- Data Management Section -->
+    <div class="data-management">
+      <button id="exportButton" class="sync-btn">📤 Export Quotes</button>
+      <input
+        type="file"
+        id="importFile"
+        accept=".json"
+        onchange="importFromJsonFile(event)"
+        style="display: none"
+      />
+      <label for="importFile" class="sync-btn" style="background: #6c757d"
+        >📥 Import Quotes</label
+      >
+    </div>
 
     <script src="script.js"></script>
   </body>
